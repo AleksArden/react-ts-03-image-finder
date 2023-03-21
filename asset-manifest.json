@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/react-ts-03-image-finder/static/css/main.629124c7.css",
+    "main.js": "/react-ts-03-image-finder/static/js/main.2befde0b.js",
+    "index.html": "/react-ts-03-image-finder/index.html",
+    "main.629124c7.css.map": "/react-ts-03-image-finder/static/css/main.629124c7.css.map",
+    "main.2befde0b.js.map": "/react-ts-03-image-finder/static/js/main.2befde0b.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.629124c7.css",
+    "static/js/main.2befde0b.js"
+  ]
+}
