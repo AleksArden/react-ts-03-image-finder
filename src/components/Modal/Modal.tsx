@@ -1,29 +1,29 @@
 import { Component } from 'react';
-import PropTypes from 'prop-types';
+
 
 import css from './Modal.module.css';
+import { ICurrentImage } from 'type/typeImage';
 
-export class Modal extends Component {
-  static propTypes = {
-    image: PropTypes.shape({
-      src: PropTypes.string.isRequired,
-      alt: PropTypes.string.isRequired,
-    }).isRequired,
-    onClose: PropTypes.func.isRequired,
-  };
-  componentDidMount() {
+interface IProps {
+  image: ICurrentImage,
+  onClose: () => void,
+}
+
+export class Modal extends Component<IProps, {}> {
+ 
+  componentDidMount(): void {
     window.addEventListener('keydown', this.handleKeydown);
   }
 
   componentWillUnmount() {
     window.removeEventListener('keydown', this.handleKeydown);
   }
-  handleKeydown = evt => {
+  handleKeydown = (evt: KeyboardEvent): void => {
     if (evt.code === 'Escape') {
       this.props.onClose();
     }
   };
-  hanleClickBackdrop = evt => {
+  hanleClickBackdrop = (evt: React.MouseEvent<HTMLDivElement>): void => {
     if (evt.target === evt.currentTarget) {
       this.props.onClose();
     }

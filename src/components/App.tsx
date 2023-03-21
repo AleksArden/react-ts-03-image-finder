@@ -7,17 +7,28 @@ import { Button } from './Button/Button';
 import { Loader } from './Loader/Loader';
 import { Modal } from './Modal/Modal';
 
+import { IImage, ICurrentImage } from 'type/typeImage';
+import { IFetch } from 'type/typeFetch';
+
 import css from './App.module.css';
 
 Notiflix.Notify.init({
   width: '400px',
   fontSize: '20px',
-  cssAnimationStyl: 'zoom',
+  cssAnimationStyle: 'zoom',
   position: 'center-center',
 });
 
-export class App extends Component {
-  state = {
+interface IState {
+  images: IImage[],
+  search: string,
+  page: number,
+  status: string,
+  currentImage: ICurrentImage | null
+}
+
+export class App extends Component<{}, IState> {
+  state: IState = {
     images: [],
     search: '',
     page: 1,
@@ -25,7 +36,7 @@ export class App extends Component {
     currentImage: null,
   };
 
-  componentDidUpdate(_, prevState) {
+  componentDidUpdate(_:{}, prevState: IState): void {
     const { search, page, currentImage } = this.state;
 
     if (page > 1 && prevState.currentImage === currentImage) {
@@ -38,13 +49,13 @@ export class App extends Component {
     }
   }
 
-  handleClickButtonLoadMore = () => {
+  handleClickButtonLoadMore = (): void => {
     this.setState(({ page }) => ({
       page: page + 1,
     }));
   };
 
-  handleSearch = search => {
+  handleSearch = (search: string): void => {
     if (search === '') {
       this.setState({
         status: 'idle',
@@ -55,6 +66,7 @@ export class App extends Component {
       Notiflix.Notify.info('Please, fill in the search field!');
       return;
     }
+
     this.setState({
       images: [],
       search,
@@ -65,21 +77,25 @@ export class App extends Component {
   fetchData = async (search = '', page = 1) => {
     this.setState({ status: 'loading' });
     try {
+
       const data = await getImages(search, page);
+
       this.onResolve(data);
+
     } catch (error) {
       console.log(error);
       this.setState({ status: 'error' });
     }
   };
 
-  onResolve({ hits, total, totalHits }) {
-    const newImages = hits.map(({ id, webformatURL, tags, largeImageURL }) => ({
+  onResolve({hits, total, totalHits}: IFetch): void {
+    const newImages: IImage[] = hits.map(({ id, webformatURL, tags, largeImageURL }) => ({
       id,
       webformatURL,
       tags,
       largeImageURL,
     }));
+
     if (total === 0) {
       Notiflix.Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
@@ -87,6 +103,7 @@ export class App extends Component {
       this.setState({ status: 'idle' });
       return;
     }
+
     if (totalHits < this.state.page * 12) {
       this.setState(({ images }) => ({
         images: [...images, ...newImages],
@@ -98,29 +115,31 @@ export class App extends Component {
       );
       return;
     }
+
     this.setState(({ images }) => ({
       images: [...images, ...newImages],
       status: 'success',
     }));
   }
 
-  handleOpenModal = image => {
+  handleOpenModal = (image: ICurrentImage): void => {
     this.setState({ currentImage: image });
   };
 
-  handleCloseModal = () => {
+  handleCloseModal = (): void => {
     this.setState({ currentImage: null });
   };
 
   onPageScrolling = () => {
-    const { height: cardHeight } = document
-      .querySelector('#gallery')
-      .firstElementChild.getBoundingClientRect();
+    const { height: cardHeight } = document.querySelector('#gallery')!
+      .firstElementChild!
+      .getBoundingClientRect();
     window.scrollBy({
       top: cardHeight * 2,
       behavior: 'smooth',
     });
   };
+
   render() {
     const { images, status, currentImage } = this.state;
 
@@ -131,16 +150,21 @@ export class App extends Component {
     return (
       <div className={css.app}>
         <Searchbar onSubmit={this.handleSearch} />
+
         {status === 'error' && (
           <h2 style={{ display: 'flex', justifyContent: 'center' }}>ERROR</h2>
         )}
+
         {images.length > 0 && (
           <ImageGallery onOpenModal={this.handleOpenModal} images={images} />
         )}
+
         {images.length > 0 && status === 'success' && (
           <Button onClick={this.handleClickButtonLoadMore} />
         )}
+
         {status === 'loading' && <Loader />}
+        
         {currentImage && (
           <Modal image={currentImage} onClose={this.handleCloseModal} />
         )}
